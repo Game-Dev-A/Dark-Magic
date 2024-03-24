@@ -38,6 +38,7 @@ public class PowerUpController : MonoBehaviour
         {
             case 0:
                 controller.healt += 25;  //Augment the player healt
+                healtBar.setHealt(controller.healt);
                 break;
             case 1:
                 controller.playerSpeed += 5;  //Augment the player speed

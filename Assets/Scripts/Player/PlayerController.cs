@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -12,15 +13,19 @@ public class PlayerController : MonoBehaviour
 
     PowerUpController powerUpController;
 
+    HealtBar healtBar;
+
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         powerUpController = GameObject.Find("GameManager").GetComponent<PowerUpController>();
+        healtBar = GetComponent<HealtBar>();
+        healtBar.SetMaxHealt(DataController.instance.healt);
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         Move();
     }
@@ -42,6 +47,9 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.CompareTag("Enemy"))
         {
             controller.healt -= 25;
+
+            healtBar.setHealt(controller.healt);
+
             if(controller.healt <= 0)
             {
                 Destroy(gameObject);  //K.O.

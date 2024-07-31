@@ -13,6 +13,6 @@ public class WeaponController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.RotateAround(DataController.instance.player.transform.position, Vector3.forward, DataController.instance.weaponSpeed * Time.deltaTime);  //The weapon rotate around the player
+        transform.RotateAround(GameManager.instance.player.transform.position, Vector3.forward, GameManager.instance.weaponSpeed * Time.deltaTime);  //The weapon rotate around the player
     }
 }

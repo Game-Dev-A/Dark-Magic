@@ -5,8 +5,9 @@ using UnityEngine;
 
 public class SpawnController : MonoBehaviour
 {
-    [SerializeField] private int enemiesCount = 1;
-    [SerializeField] private int enemiesToSpawn = 1;
+    [SerializeField] int enemiesCount = 1;
+    [SerializeField] int enemiesToSpawn = 1;
+    [SerializeField] GameObject enemy;
 
     PowerUpController powerUpController;
 
@@ -18,9 +19,9 @@ public class SpawnController : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        if(DataController.instance.gameOver == false)
+        if(GameManager.instance.gameOver == false)
         {
             enemiesCount = FindObjectsOfType<Enemy>().Length;  //Find the remaining enemies
             if (enemiesCount == 0)
@@ -34,14 +35,12 @@ public class SpawnController : MonoBehaviour
 
     void SpawnEnemyWaves()
     {
-        var enemy = DataController.instance;
-
         for (int i = 0; i < enemiesToSpawn; i++)  //Spawns all the enemies
         {
-            Instantiate(enemy.enemy, RandomSpawnPos(), enemy.enemy.transform.rotation);  //Spawns an enemy in a random position
+            Instantiate(enemy, RandomSpawnPos(), enemy.transform.rotation);  //Spawns an enemy in a random position
         }
 
-        Enemy _enemy = enemy.enemy.GetComponent<Enemy>();
+        Enemy _enemy = enemy.GetComponent<Enemy>();
         if (_enemy != null)
             _enemy.OnDie += SpawnEnemyWaves;
     }
@@ -50,11 +49,10 @@ public class SpawnController : MonoBehaviour
     {
         powerUpController.PowerUpToSpawn();
 
-        var controller = DataController.instance;
-        if (controller.hasPowerUp == false)
+        if (powerUpController.hasPowerUp == false)
         {
-            var i = controller.powerUpNumber;
-            Instantiate(controller.powerUp[i], RandomSpawnPos(), controller.powerUp[i].transform.rotation);  //Spawns a power up in a random position
+            var i = powerUpController.powerUpNumber;
+            Instantiate(powerUpController.powerUp[i], RandomSpawnPos(), powerUpController.powerUp[i].transform.rotation);  //Spawns a power up in a random position
         }
     }
 

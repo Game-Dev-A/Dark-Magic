@@ -5,20 +5,32 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    [SerializeField] GameObject deathEnemy;
+    int maxHp;
+    int enemiesDefeated;
+    public bool died = false;
 
     public event Action OnDie = null;
-    
+
+    public SpriteRenderer spriteRenderer;
+
+    public EnemyBase _enemyBase;
+    public EnemyBase Base
+    {
+        get { return _enemyBase; }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        DataController.instance.player = GameObject.Find("Player");  //Set the position reference
+        GameManager.instance.player = GameObject.Find("Player");  //Set the position reference
+        spriteRenderer.sprite = Base.EnemySprite;
+        maxHp = Base.MaxHp;
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        if(DataController.instance.gameOver == false)
+        if(GameManager.instance.gameOver == false && died == false)
         {
             EnemyMovement();
         }
@@ -26,23 +38,43 @@ public class Enemy : MonoBehaviour
 
     void EnemyMovement()
     {
-        Vector3 distance = (DataController.instance.player.transform.position - transform.position);  //Direction of the movement
-        transform.Translate(distance * DataController.instance.enemySpeed * Time.deltaTime * 0.01f);  //The movement
+        Vector3 distance = (GameManager.instance.player.transform.position - transform.position);  //Direction of the movement
+        transform.Translate(distance * Base.Speed * Time.deltaTime * 0.01f);  //The movement
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Weapon"))
         {
-            Instantiate(deathEnemy, transform.position, Quaternion.identity);  //Spawn of the death enemy
-            
-            Destroy(gameObject);  //Death of the enemy
-            if(OnDie != null)
-                OnDie();
+            var controller = GameManager.instance;
 
-            var controller = DataController.instance;
-            controller.enemiesDefeated++;
-            controller.wavesNumber.text = "Enemies defeated: " + controller.enemiesDefeated;  //Keeps the number of waves defeated
+            maxHp -= controller.weaponDamage;
+            Debug.Log(maxHp);
+            
+            if (maxHp <= 0)
+            {
+                died = true;
+
+                if (Base.HasDeathSprite)
+                {
+                    spriteRenderer.sprite = Base.DeathEnemySprite; //Spawn of the death enemy
+                    spriteRenderer.color = Color.gray;
+                }
+
+                StartCoroutine(Wait(1.5f));
+
+                enemiesDefeated++;
+                controller.wavesNumber.text = "Enemies defeated: " + enemiesDefeated;  //Keeps the number of waves defeated
+            }
         }
+    }
+
+    IEnumerator Wait(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        Destroy(gameObject);  //Death of the enemy
+
+        if (OnDie != null)
+            OnDie();
     }
 }

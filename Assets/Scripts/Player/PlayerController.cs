@@ -6,14 +6,16 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
-    private Rigidbody2D rb;
+    Rigidbody2D rb;
     Vector2 playerPos;
+
+    public int healt = 100;
 
     public UnityEvent OnPlayerDie = null;
 
     PowerUpController powerUpController;
-
     HealtBar healtBar;
+    Enemy enemy;
 
     // Start is called before the first frame update
     void Start()
@@ -21,7 +23,7 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         powerUpController = GameObject.Find("GameManager").GetComponent<PowerUpController>();
         healtBar = GetComponent<HealtBar>();
-        healtBar.SetMaxHealt(DataController.instance.healt);
+        healtBar.SetMaxHealt(healt);
     }
 
     // Update is called once per frame
@@ -37,20 +39,21 @@ public class PlayerController : MonoBehaviour
 
         playerPos.Normalize();
 
-        rb.position += playerPos * DataController.instance.playerSpeed * Time.deltaTime;
+        rb.position += playerPos * GameManager.instance.playerSpeed * Time.deltaTime;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        var controller = DataController.instance;
-
-        if (collision.gameObject.CompareTag("Enemy"))
+        var controller = GameManager.instance;
+        enemy = collision.GetComponentInParent<Enemy>(); 
+        
+        if (collision.gameObject.CompareTag("Enemy") && enemy.died == false)
         {
-            controller.healt -= 25;
+            healt -= enemy.Base.Attack;  //The player takes the damage
 
-            healtBar.setHealt(controller.healt);
+            healtBar.setHealt(healt);  //Update the healt
 
-            if(controller.healt <= 0)
+            if(healt <= 0)
             {
                 Destroy(gameObject);  //K.O.
 
@@ -60,15 +63,14 @@ public class PlayerController : MonoBehaviour
                 controller.gameOver = true;  //The game ends
             }
         }
-        else if (collision.gameObject.CompareTag("Power Up") && controller.hasPowerUp == false)
+        else if (collision.gameObject.CompareTag("Power Up") && powerUpController.hasPowerUp == false)
         {
             Destroy(collision.gameObject);  //This destroy the power up
 
-            controller.hasPowerUp = true;  //The player can't keep another power up
-            
-            powerUpController.PowerUpAbility();
+            powerUpController.hasPowerUp = true;  //The player can't keep another power up
+            powerUpController.PowerUpAbility();  //The player ability are upgreaded
 
-            StartCoroutine(powerUpController.PowerUpTimerRutine());
+            StartCoroutine(powerUpController.PowerUpTimerRutine());  //The player ability are resetted
         }
     }
 }

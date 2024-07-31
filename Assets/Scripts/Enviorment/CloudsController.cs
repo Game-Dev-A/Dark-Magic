@@ -14,7 +14,7 @@ public class CloudsController : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         for(int i = 0; i < clouds.Length; i++)
         {

@@ -4,16 +4,24 @@ using UnityEngine;
 
 public class PowerUpController : MonoBehaviour
 {
+    HealtBar healtBar;
+    PlayerController playerController;
+
+    public GameObject[] powerUp;
+
+    public bool hasPowerUp;
+    public int powerUpNumber;
     // Start is called before the first frame update
     void Start()
     {
-        
+        healtBar = GameObject.Find("Player").GetComponent<HealtBar>();
+        playerController = GameObject.Find("Player").GetComponent<PlayerController>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     public void PowerUpToSpawn()  //Which power up is spawned
@@ -21,24 +29,24 @@ public class PowerUpController : MonoBehaviour
         int powerUpNumb = Random.Range(1, 100);
 
         if (powerUpNumb >= 1 && powerUpNumb <= 36)
-            DataController.instance.powerUpNumber = 0;
+            powerUpNumber = 0;
         else if (powerUpNumb >= 37 && powerUpNumb <= 68)
-            DataController.instance.powerUpNumber = 1;
+            powerUpNumber = 1;
         else if(powerUpNumb >= 69 && powerUpNumb <= 90)
-            DataController.instance.powerUpNumber = 2;
+            powerUpNumber = 2;
         else if(powerUpNumb >= 91 && powerUpNumb <=100)
-            DataController.instance.powerUpNumber = 3;
+            powerUpNumber = 3;
     }
 
     public void PowerUpAbility()
     {
-        var controller = DataController.instance;
+        var controller = GameManager.instance;
 
-        switch (controller.powerUpNumber)
+        switch (powerUpNumber)
         {
             case 0:
-                controller.healt += 25;  //Augment the player healt
-                healtBar.setHealt(controller.healt);
+                playerController.healt += 25;  //Augment the player healt
+                healtBar.setHealt(playerController.healt);  //Update the healt bar
                 break;
             case 1:
                 controller.playerSpeed += 5;  //Augment the player speed
@@ -47,9 +55,14 @@ public class PowerUpController : MonoBehaviour
                 controller.weaponSpeed += 40;  //Augment the player's weapon speed
                 break;
             case 3:
-                controller.healt += 35;  //Augment the player healt
-                controller.playerSpeed += 8;  //Augment the player speed
-                controller.weaponSpeed += 50;  //Augment the player's weapon speed
+                playerController.healt += 35;  //Augment the player healt
+                controller.playerSpeed += 5;  //Augment the player speed
+                controller.weaponSpeed += 40;  //Augment the player's weapon speed
+                healtBar.setHealt(playerController.healt);  //Update the healt bar
+                break;
+            default:
+                controller.playerSpeed = 10;
+                controller.weaponSpeed = 100;
                 break;
         }
     }
@@ -58,13 +71,13 @@ public class PowerUpController : MonoBehaviour
     { 
         yield return new WaitForSeconds(5);
 
-        var controller = DataController.instance;
-        controller.hasPowerUp = false;  //The player can keep another power up now
+        var controller = GameManager.instance;
+        hasPowerUp = false;  //The player can keep another power up now
 
-        switch (controller.powerUpNumber)
+        switch (powerUpNumber)
         {
             case 0:
-                controller.healt -= 25;  //The player healt is resetted
+                playerController.healt += 0;  //The player healt remain equal
                 break;
             case 1:
                 controller.playerSpeed -= 5;  //The player speed is resetted
@@ -73,9 +86,13 @@ public class PowerUpController : MonoBehaviour
                 controller.weaponSpeed -= 40;  //The player's weapon speed is resetted
                 break;
             case 3:
-                controller.healt -= 35;  //The player healt is resetted
-                controller.playerSpeed -= 8;  //The player speed is resetted
-                controller.weaponSpeed -= 50;  //The player's weapon speed is resetted
+                playerController.healt -= 35;  //The player healt is resetted
+                controller.playerSpeed -= 5;  //The player speed is resetted
+                controller.weaponSpeed -= 40;  //The player's weapon speed is resetted
+                break;
+            default:
+                controller.playerSpeed = 10;
+                controller.weaponSpeed = 100;
                 break;
         }
     }
